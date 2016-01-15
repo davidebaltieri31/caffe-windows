@@ -46,7 +46,7 @@ void BNLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
 
 		// history variance
 		this->blobs_[3].reset(new Blob<Dtype>(1, channels_, 1, 1));
-		caffe_set(channels_, Dtype(0), this->blobs_[3]->mutable_cpu_data());
+		caffe_set(channels_, Dtype(1), this->blobs_[3]->mutable_cpu_data());
 
 	}  // parameter initialization
 	this->param_propagate_down_.resize(this->blobs_.size(), true);
@@ -98,7 +98,7 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		batch_sum_multiplier_.cpu_data(), Dtype(0), batch_statistic_.mutable_cpu_data());
 	// save history mean
 	if (this->phase_ == TRAIN) {
-		caffe_cpu_axpby(batch_statistic_.count(), decay_, batch_statistic_.cpu_data(), Dtype(1) - decay_,
+		caffe_cpu_axpby(batch_statistic_.count(), Dtype(1) - decay_, batch_statistic_.cpu_data(), decay_,
 			this->blobs_[2]->mutable_cpu_data());
 	}
 	if (this->phase_ == TEST && moving_average_) {
@@ -126,7 +126,7 @@ void BNLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		batch_sum_multiplier_.cpu_data(), Dtype(0), batch_statistic_.mutable_cpu_data());
 	// save history variance
 	if (this->phase_ == TRAIN) {
-		caffe_cpu_axpby(batch_statistic_.count(), decay_, batch_statistic_.cpu_data(), Dtype(1) - decay_,
+		caffe_cpu_axpby(batch_statistic_.count(), Dtype(1) - decay_, batch_statistic_.cpu_data(), decay_,
 			this->blobs_[3]->mutable_cpu_data());
     // add eps
     caffe_add_scalar(batch_statistic_.count(), var_eps_, batch_statistic_.mutable_cpu_data());
